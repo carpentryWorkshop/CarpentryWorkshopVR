@@ -124,6 +124,7 @@ Material:
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+<<<<<<< HEAD
 --- !u!114 &7028311629892638572
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -137,3 +138,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
   version: 10
+=======
+>>>>>>> 7e33c61208c7e0020d74900f37c2c0269fc72790

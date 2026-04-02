@@ -614,29 +614,3 @@ public class CNCCutterExtended : MonoBehaviour
     }
 #endif
 }
-
-/// <summary>
-/// Stub class for JoystickController if not already defined.
-/// Replace with your actual JoystickController implementation.
-/// </summary>
-#if !JOYSTICK_CONTROLLER_DEFINED
-public class JoystickController : MonoBehaviour
-{
-    public event Action<Vector2> OnJoystickMoved;
-    public event Action OnJoystickReleased;
-
-    // This is a stub - replace with actual implementation
-    private void Update()
-    {
-        // Example: Read from keyboard for testing
-        Vector2 input = Vector2.zero;
-        if (Input.GetKey(KeyCode.W)) input.y += 1f;
-        if (Input.GetKey(KeyCode.S)) input.y -= 1f;
-        if (Input.GetKey(KeyCode.A)) input.x -= 1f;
-        if (Input.GetKey(KeyCode.D)) input.x += 1f;
-
-        if (input.sqrMagnitude > 0.01f)
-            OnJoystickMoved?.Invoke(input.normalized);
-    }
-}
-#endif

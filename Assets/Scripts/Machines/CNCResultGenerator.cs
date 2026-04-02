@@ -607,7 +607,7 @@ public class CNCResultGenerator : MonoBehaviour
             Rigidbody rb = debris.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.velocity = new Vector3(
+                rb.linearVelocity = new Vector3(
                     Random.Range(-0.5f, 0.5f),
                     Random.Range(0.5f, 1.5f),
                     Random.Range(-0.5f, 0.5f)

@@ -315,12 +315,12 @@ public class ConveyorBelt : MonoBehaviour
 
             // Smoothly accelerate object to belt speed
             // Only affect horizontal velocity (preserve vertical for gravity)
-            Vector3 currentVel = rb.velocity;
+            Vector3 currentVel = rb.linearVelocity;
             Vector3 horizontalTarget = new Vector3(targetVelocity.x, 0f, targetVelocity.z);
             Vector3 horizontalCurrent = new Vector3(currentVel.x, 0f, currentVel.z);
 
             Vector3 newHorizontal = Vector3.Lerp(horizontalCurrent, horizontalTarget, _acceleration);
-            rb.velocity = new Vector3(newHorizontal.x, currentVel.y, newHorizontal.z);
+            rb.linearVelocity = new Vector3(newHorizontal.x, currentVel.y, newHorizontal.z);
         }
     }
 

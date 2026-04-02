@@ -107,10 +107,12 @@ public class CNCMachineExtended : MonoBehaviour
     public PathData LoadedPath => _loadedPath;
 
     /// <summary>Progress through the current path (0-1).</summary>
-    public float PathProgress { get; private set; }
+    public float PathProgress => _pathProgress;
+    private float _pathProgress;
 
     /// <summary>Current waypoint index during path following.</summary>
-    public int CurrentWaypointIndex { get; private set; }
+    public int CurrentWaypointIndex => _currentWaypointIndex;
+    private int _currentWaypointIndex;
 
     /// <summary>Is the machine currently in a cutting state?</summary>
     public bool IsCutting => CurrentState == CNCState.Cutting || CurrentState == CNCState.FollowingPath;
@@ -209,8 +211,8 @@ public class CNCMachineExtended : MonoBehaviour
         }
 
         _loadedPath = path;
-        CurrentWaypointIndex = 0;
-        PathProgress = 0f;
+        _currentWaypointIndex = 0;
+        _pathProgress = 0f;
         _currentPass = 0;
 
         OnPathLoaded?.Invoke(path);
@@ -244,8 +246,8 @@ public class CNCMachineExtended : MonoBehaviour
     public void ClearPath()
     {
         _loadedPath = null;
-        CurrentWaypointIndex = 0;
-        PathProgress = 0f;
+        _currentWaypointIndex = 0;
+        _pathProgress = 0f;
 
         if (_verboseLogging)
             Debug.Log("[CNCMachineExtended] Path cleared.");
@@ -444,8 +446,8 @@ public class CNCMachineExtended : MonoBehaviour
             case CNCState.Idle:
                 _cutter?.SetEnabled(false);
                 _cutter?.SetMode(CutterMode.Manual);
-                PathProgress = 0f;
-                CurrentWaypointIndex = 0;
+                _pathProgress = 0f;
+                _currentWaypointIndex = 0;
                 break;
 
             case CNCState.Positioning:
@@ -523,13 +525,13 @@ public class CNCMachineExtended : MonoBehaviour
         // Let the cutter handle the path following
         bool reachedEnd = _cutter.FollowPathStep(
             _loadedPath,
-            ref CurrentWaypointIndex,
-            out PathProgress
+            ref _currentWaypointIndex,
+            out _pathProgress
         );
 
         // Report progress
-        OnCutProgress?.Invoke(PathProgress);
-        GameStateEvents.RaiseCutProgress(PathProgress);
+        OnCutProgress?.Invoke(_pathProgress);
+        GameStateEvents.RaiseCutProgress(_pathProgress);
 
         if (reachedEnd)
         {
@@ -537,7 +539,7 @@ public class CNCMachineExtended : MonoBehaviour
             if (_currentPass < _loadedPath.passes)
             {
                 _currentPass++;
-                CurrentWaypointIndex = 0;
+                _currentWaypointIndex = 0;
                 
                 // Retract and reposition for next pass
                 _cutter.Retract();

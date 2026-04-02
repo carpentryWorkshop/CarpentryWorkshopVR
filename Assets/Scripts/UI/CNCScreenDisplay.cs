@@ -17,7 +17,7 @@ using UnityEngine;
 ///      to <see cref="_renderTexture"/>.
 ///   3. Create a URP/Lit (or Unlit) material, set its Base Map to that same
 ///      RenderTexture, and assign it to the Screen mesh renderer.
-///   4. Assign the <see cref="CNCCutter"/> and <see cref="CuttingPath"/> references.
+///   4. Assign the <see cref="CNCCutter"/> and <see cref="WorkAreaBounds"/> references.
 ///   5. Optionally create and assign a <see cref="_drawCamera"/> — a small
 ///      orthographic camera that renders only the display layer.
 ///      If left null, GL drawing falls back to OnPostRender on the main camera.
@@ -34,7 +34,7 @@ public class CNCScreenDisplay : MonoBehaviour
     [SerializeField] private CNCCutter _cutter;
 
     [Tooltip("ScriptableObject defining the work area (must match the one on CNCCutter).")]
-    [SerializeField] private CuttingPath _cuttingPath;
+    [SerializeField] private WorkAreaBounds _workAreaBounds;
 
     [Tooltip("RenderTexture that this display draws into. Assign to the Screen mesh material.")]
     [SerializeField] private RenderTexture _renderTexture;
@@ -144,9 +144,9 @@ public class CNCScreenDisplay : MonoBehaviour
 
     private void HandleCutterMoved(Vector3 localPosition)
     {
-        if (_cuttingPath == null) return;
+        if (_workAreaBounds == null) return;
 
-        Vector2 norm = _cuttingPath.Normalise(new Vector2(localPosition.x, localPosition.z));
+        Vector2 norm = _workAreaBounds.Normalise(new Vector2(localPosition.x, localPosition.z));
         _normalisedCursorPos = norm;
 
         // Record trail point only if we've moved far enough

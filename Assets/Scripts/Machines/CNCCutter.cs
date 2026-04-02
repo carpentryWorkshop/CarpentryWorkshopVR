@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Moves the CNC tool-head GameObject along the X (lateral) and Z (depth) axes
 /// in response to joystick input. Clamps movement to the bounds defined in a
-/// <see cref="CuttingPath"/> ScriptableObject.
+/// <see cref="WorkAreaBounds"/> ScriptableObject.
 ///
 /// Attach this to the tool-head child of the CNC2.fbx hierarchy.
 /// Wire <see cref="JoystickController"/> in the Inspector; the cutter subscribes
@@ -22,7 +22,7 @@ public class CNCCutter : MonoBehaviour
     [SerializeField] private JoystickController _joystick;
 
     [Tooltip("ScriptableObject that defines work-area bounds and cut depth.")]
-    [SerializeField] private CuttingPath _cuttingPath;
+    [SerializeField] private WorkAreaBounds _workAreaBounds;
 
     [Header("Movement")]
     [Tooltip("Maximum movement speed of the tool head (metres per second).")]
@@ -76,9 +76,9 @@ public class CNCCutter : MonoBehaviour
     private void Update()
     {
         if (!IsEnabled) return;
-        if (_cuttingPath == null)
+        if (_workAreaBounds == null)
         {
-            Debug.LogWarning("[CNCCutter] No CuttingPath assigned — cutter cannot move.", this);
+            Debug.LogWarning("[CNCCutter] No WorkAreaBounds assigned — cutter cannot move.", this);
             return;
         }
 
@@ -113,10 +113,10 @@ public class CNCCutter : MonoBehaviour
     /// </summary>
     public Vector2 GetNormalisedPosition()
     {
-        if (_cuttingPath == null) return Vector2.one * 0.5f;
+        if (_workAreaBounds == null) return Vector2.one * 0.5f;
 
         Vector3 local = transform.localPosition;
-        return _cuttingPath.Normalise(new Vector2(local.x, local.z));
+        return _workAreaBounds.Normalise(new Vector2(local.x, local.z));
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ public class CNCCutter : MonoBehaviour
         Vector3 newLocal = transform.localPosition + delta;
 
         // Clamp to work-area bounds (XZ plane)
-        Vector2 clampedXZ = _cuttingPath.Clamp(new Vector2(newLocal.x, newLocal.z));
+        Vector2 clampedXZ = _workAreaBounds.Clamp(new Vector2(newLocal.x, newLocal.z));
         newLocal.x = clampedXZ.x;
         newLocal.z = clampedXZ.y;
 
@@ -154,7 +154,7 @@ public class CNCCutter : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (!_showGizmos || _cuttingPath == null) return;
+        if (!_showGizmos || _workAreaBounds == null) return;
 
         // Draw work-area bounds in local space
         Matrix4x4 oldMatrix = Gizmos.matrix;
@@ -164,8 +164,8 @@ public class CNCCutter : MonoBehaviour
 
         Gizmos.color = new Color(0f, 1f, 0.4f, 0.5f);
 
-        Vector2 min = _cuttingPath.WorkAreaMin;
-        Vector2 max = _cuttingPath.WorkAreaMax;
+        Vector2 min = _workAreaBounds.WorkAreaMin;
+        Vector2 max = _workAreaBounds.WorkAreaMax;
         float y = transform.localPosition.y;
 
         // Draw border lines of the work rectangle

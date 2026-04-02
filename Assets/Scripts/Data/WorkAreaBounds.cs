@@ -3,10 +3,14 @@ using UnityEngine;
 /// <summary>
 /// ScriptableObject that defines the bounding rectangle of the CNC work area.
 /// Used by CNCCutter for clamping and by CNCScreenDisplay for the preview overlay.
-/// Create via: Assets > Create > CarpentryWorkshopVR > Cutting Path
+/// 
+/// Create via: Assets > Create > CarpentryWorkshopVR > Work Area Bounds
+/// 
+/// Note: This was previously named "CuttingPath" but renamed to avoid confusion
+/// with PathData which defines actual cutting waypoints.
 /// </summary>
-[CreateAssetMenu(fileName = "CuttingPath", menuName = "CarpentryWorkshopVR/Cutting Path")]
-public class CuttingPath : ScriptableObject
+[CreateAssetMenu(fileName = "WorkAreaBounds", menuName = "CarpentryWorkshopVR/Work Area Bounds")]
+public class WorkAreaBounds : ScriptableObject
 {
     [Header("Work Area Bounds (local space, XZ plane)")]
     [Tooltip("Minimum X and Z coordinates the cutter can reach (local to CNC machine).")]

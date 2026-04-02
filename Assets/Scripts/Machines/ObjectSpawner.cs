@@ -235,7 +235,7 @@ public class ObjectSpawner : MonoBehaviour
             rb = workpiece.AddComponent<Rigidbody>();
 
         rb.isKinematic = _spawnKinematic;
-        rb.velocity = _initialVelocity;
+        rb.linearVelocity = _initialVelocity;
 
         // Ensure collider exists
         Collider col = workpiece.GetComponent<Collider>();
@@ -323,7 +323,7 @@ public class ObjectSpawner : MonoBehaviour
             Rigidbody rb = workpiece.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
             }
 

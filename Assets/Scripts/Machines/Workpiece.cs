@@ -153,7 +153,7 @@ public class Workpiece : MonoBehaviour
         // Reset rigidbody
         if (_rigidbody != null)
         {
-            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.linearVelocity = Vector3.zero;
             _rigidbody.angularVelocity = Vector3.zero;
         }
 
@@ -247,7 +247,7 @@ public class Workpiece : MonoBehaviour
         if (_rigidbody == null)
             return;
 
-        _rigidbody.velocity = Vector3.zero;
+        _rigidbody.linearVelocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
         _rigidbody.isKinematic = true;
     }

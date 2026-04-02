@@ -372,7 +372,7 @@ public class ConsequenceSystem : MonoBehaviour
         // Use FeedbackManager if available for consistent audio
         if (FeedbackManager.Instance != null)
         {
-            FeedbackManager.Instance.PlayWarning();
+            FeedbackManager.Instance.PlayWarningSound();
             return;
         }
 

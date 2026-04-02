@@ -363,7 +363,7 @@ public class TaskManager : MonoBehaviour
         ScoreManager.Instance?.AddScore(score, $"Completed: {step.stepName}");
 
         // Play completion sound
-        FeedbackManager.Instance?.PlaySuccess();
+        FeedbackManager.Instance?.PlaySuccessSound();
 
         if (_verboseLogging)
             Debug.Log($"[TaskManager] Completed step: {step.stepName} (+{score} points)");
@@ -447,7 +447,7 @@ public class TaskManager : MonoBehaviour
     {
         if (IsMachineLocked(machine))
         {
-            FeedbackManager.Instance?.PlayError();
+            FeedbackManager.Instance?.PlayErrorSound();
             
             // Raise safety event for improper sequence
             if (CurrentStep != null)
@@ -642,7 +642,7 @@ public class TaskManager : MonoBehaviour
         GameStateEvents.RaiseTaskCompleted(_currentTask.taskName);
 
         // Play completion sound
-        FeedbackManager.Instance?.PlayTaskComplete();
+        FeedbackManager.Instance?.PlayTaskCompleteSound();
 
         if (_verboseLogging)
             Debug.Log($"[TaskManager] Task completed: {_currentTask.taskName}, Final score: {finalScore}");
@@ -658,7 +658,7 @@ public class TaskManager : MonoBehaviour
         OnTaskFailed?.Invoke(_currentTask, _currentProgress);
 
         // Play failure sound
-        FeedbackManager.Instance?.PlayError();
+        FeedbackManager.Instance?.PlayErrorSound();
 
         if (_verboseLogging)
             Debug.Log($"[TaskManager] Task failed: {_currentTask.taskName}");

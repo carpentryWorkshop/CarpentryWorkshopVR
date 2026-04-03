@@ -489,7 +489,7 @@ public class CNCCutterExtended : MonoBehaviour
                 newLocal.x += _xAxisInput * _manualSpeed * Time.deltaTime;
                 
                 // Clamp X to bounds
-                newLocal.x = Mathf.Clamp(newLocal.x, _workAreaBounds.minX, _workAreaBounds.maxX);
+                newLocal.x = Mathf.Clamp(newLocal.x, _workAreaBounds.WorkAreaMin.x, _workAreaBounds.WorkAreaMax.x);
                 moved = true;
                 
                 if (_verboseLogging)
@@ -503,8 +503,8 @@ public class CNCCutterExtended : MonoBehaviour
                 Vector3 holderPos = holder.localPosition;
                 holderPos.z += _zAxisInput * _manualSpeed * Time.deltaTime;
                 
-                // Clamp Z to bounds
-                holderPos.z = Mathf.Clamp(holderPos.z, _workAreaBounds.minZ, _workAreaBounds.maxZ);
+                // Clamp Z to bounds (WorkAreaMin.y and WorkAreaMax.y represent Z-axis)
+                holderPos.z = Mathf.Clamp(holderPos.z, _workAreaBounds.WorkAreaMin.y, _workAreaBounds.WorkAreaMax.y);
                 holder.localPosition = holderPos;
                 moved = true;
                 
@@ -518,7 +518,9 @@ public class CNCCutterExtended : MonoBehaviour
                 newLocal.y += _yAxisInput * _manualSpeed * Time.deltaTime;
                 
                 // Clamp Y to bounds (plunge depth)
-                newLocal.y = Mathf.Clamp(newLocal.y, _workAreaBounds.minY, _workAreaBounds.maxY);
+                float minY = _startLocalPosition.y - _workAreaBounds.MaxCutDepth;
+                float maxY = _workAreaBounds.IdleHeight;
+                newLocal.y = Mathf.Clamp(newLocal.y, minY, maxY);
                 moved = true;
                 
                 if (_verboseLogging)

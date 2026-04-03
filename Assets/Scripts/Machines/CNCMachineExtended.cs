@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 /// <summary>
@@ -77,6 +78,13 @@ public class CNCMachineExtended : MonoBehaviour
     [Tooltip("Log state transitions to console.")]
     [SerializeField] private bool _verboseLogging = true;
 
+    [Header("Debug Info (Read-Only)")]
+    [Tooltip("Current workpiece GameObject (read-only).")]
+    [SerializeField] private GameObject _debugCurrentWorkpiece;
+
+    [Tooltip("Last startup failure reason (read-only).")]
+    [SerializeField] private string _debugLastError = "";
+
     // ══════════════════════════════════════════════════════════════════════════
     // EVENTS
     // ══════════════════════════════════════════════════════════════════════════
@@ -92,6 +100,9 @@ public class CNCMachineExtended : MonoBehaviour
 
     /// <summary>Fires during path following with progress (0-1).</summary>
     public event Action<float> OnCutProgress;
+
+    /// <summary>Fires when StartCut fails with error message.</summary>
+    public event Action<string> OnStartFailed;
 
     // ══════════════════════════════════════════════════════════════════════════
     // PROPERTIES
@@ -175,6 +186,12 @@ public class CNCMachineExtended : MonoBehaviour
 
     private void Update()
     {
+        // Update debug info in inspector
+        if (_verboseLogging)
+        {
+            _debugCurrentWorkpiece = _currentWorkpiece;
+        }
+
         switch (CurrentState)
         {
             case CNCState.Positioning:
@@ -265,7 +282,18 @@ public class CNCMachineExtended : MonoBehaviour
     {
         if (_loadedPath == null)
         {
-            Debug.LogWarning("[CNCMachineExtended] Cannot start auto cut - no path loaded.");
+            string errorMsg = "Cannot start auto cut - no path loaded.";
+            Debug.LogWarning($"[CNCMachineExtended] {errorMsg}", this);
+            _debugLastError = errorMsg;
+            OnStartFailed?.Invoke(errorMsg);
+            
+            if (_verboseLogging)
+            {
+                Debug.Log("[CNCMachineExtended] Available paths: " + _availablePaths.Count);
+                if (_availablePaths.Count > 0)
+                    Debug.Log("[CNCMachineExtended] Hint: Call LoadPath() or LoadPathByIndex() before StartAutoCut().");
+            }
+            
             return false;
         }
 
@@ -281,7 +309,19 @@ public class CNCMachineExtended : MonoBehaviour
     {
         if (CurrentState != CNCState.Idle)
         {
-            Debug.LogWarning($"[CNCMachineExtended] Cannot start auto cut - current state is {CurrentState}.");
+            string errorMsg = $"Cannot start auto cut - current state is {CurrentState}.";
+            Debug.LogWarning($"[CNCMachineExtended] {errorMsg}", this);
+            _debugLastError = errorMsg;
+            OnStartFailed?.Invoke(errorMsg);
+            
+            if (CurrentState == CNCState.Done)
+                Debug.Log("[CNCMachineExtended] Hint: Call Reset() to return to Idle state.", this);
+            
+            if (_verboseLogging)
+            {
+                Debug.Log("[CNCMachineExtended] Printing full diagnostics:\n" + GetStartupDiagnostics());
+            }
+            
             return false;
         }
 
@@ -293,6 +333,9 @@ public class CNCMachineExtended : MonoBehaviour
 
         CurrentMode = CutterMode.Auto;
         _currentPass = 1;
+
+        if (_verboseLogging)
+            Debug.Log($"[CNCMachineExtended] Starting auto cut with path '{path.pathName}'.", this);
 
         TransitionTo(CNCState.Positioning);
         return true;
@@ -306,7 +349,19 @@ public class CNCMachineExtended : MonoBehaviour
     {
         if (CurrentState != CNCState.Idle)
         {
-            Debug.LogWarning($"[CNCMachineExtended] Cannot start manual cut - current state is {CurrentState}.");
+            string errorMsg = $"Cannot start manual cut - current state is {CurrentState}.";
+            Debug.LogWarning($"[CNCMachineExtended] {errorMsg}", this);
+            _debugLastError = errorMsg;
+            OnStartFailed?.Invoke(errorMsg);
+            
+            if (CurrentState == CNCState.Done)
+                Debug.Log("[CNCMachineExtended] Hint: Call Reset() to return to Idle state.", this);
+            
+            if (_verboseLogging)
+            {
+                Debug.Log("[CNCMachineExtended] Printing full diagnostics:\n" + GetStartupDiagnostics());
+            }
+            
             return false;
         }
 
@@ -315,6 +370,9 @@ public class CNCMachineExtended : MonoBehaviour
 
         CurrentMode = CutterMode.Manual;
         _loadedPath = null;
+
+        if (_verboseLogging)
+            Debug.Log("[CNCMachineExtended] Starting manual cut.", this);
 
         TransitionTo(CNCState.Positioning);
         return true;
@@ -326,6 +384,9 @@ public class CNCMachineExtended : MonoBehaviour
     /// <returns>True if cutting started successfully.</returns>
     public bool StartCut()
     {
+        if (_verboseLogging)
+            Debug.Log($"[CNCMachineExtended] StartCut() called. Mode: {CurrentMode}, State: {CurrentState}, Path loaded: {_loadedPath != null}", this);
+
         if (CurrentMode == CutterMode.Auto && _loadedPath != null)
             return StartAutoCut();
         else
@@ -392,6 +453,120 @@ public class CNCMachineExtended : MonoBehaviour
         }
 
         TransitionTo(CNCState.Idle);
+    }
+
+    /// <summary>
+    /// Diagnostic method to check if machine can start and return detailed status.
+    /// Call this to debug why StartCut() is failing.
+    /// </summary>
+    /// <returns>Detailed diagnostic information.</returns>
+    public string GetStartupDiagnostics()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("=== CNC Machine Startup Diagnostics ===");
+        
+        // Check 1: Component references
+        sb.AppendLine($"Cutter Assigned: {_cutter != null}");
+        sb.AppendLine($"Result Generator Assigned: {_resultGenerator != null}");
+        sb.AppendLine($"Loading Zone Assigned: {_loadingZone != null}");
+        
+        // Check 2: Current state
+        sb.AppendLine($"Current State: {CurrentState}");
+        sb.AppendLine($"Current Mode: {CurrentMode}");
+        sb.AppendLine($"Can Start (State Check): {CurrentState == CNCState.Idle}");
+        
+        // Check 3: Workpiece status
+        sb.AppendLine($"Workpiece Required: {_requireWorkpiece}");
+        sb.AppendLine($"Workpiece Loaded: {_currentWorkpiece != null}");
+        
+        if (_currentWorkpiece != null)
+        {
+            Workpiece wp = _currentWorkpiece.GetComponent<Workpiece>();
+            sb.AppendLine($"Workpiece Component: {wp != null}");
+            
+            if (wp != null)
+            {
+                sb.AppendLine($"  - Data Assigned: {wp.Data != null}");
+                if (wp.Data != null)
+                {
+                    sb.AppendLine($"  - Is Cuttable: {wp.Data.isCuttable}");
+                    sb.AppendLine($"  - Cut Count: {wp.CutCount}/{wp.Data.maxCuts}");
+                    sb.AppendLine($"  - Current Thickness: {wp.CurrentThickness:F4}m");
+                    sb.AppendLine($"  - Min Thickness: {wp.Data.minimumThickness:F4}m");
+                    sb.AppendLine($"  - Can Be Cut: {wp.CanBeCut}");
+                }
+            }
+        }
+        else if (_requireWorkpiece)
+        {
+            sb.AppendLine("  ❌ ISSUE: Workpiece required but none loaded!");
+        }
+        
+        // Check 4: Path status (for auto mode)
+        sb.AppendLine($"Loaded Path: {_loadedPath != null}");
+        if (_loadedPath != null)
+        {
+            sb.AppendLine($"  - Path Name: {_loadedPath.pathName}");
+            sb.AppendLine($"  - Is Valid: {_loadedPath.IsValid()}");
+        }
+        else if (CurrentMode == CutterMode.Auto)
+        {
+            sb.AppendLine("  ❌ ISSUE: Auto mode requires a path!");
+        }
+        
+        // Check 5: Overall readiness
+        bool canStart = CurrentState == CNCState.Idle;
+        bool hasWorkpieceIssue = false;
+        bool hasPathIssue = false;
+        
+        if (_requireWorkpiece && _currentWorkpiece == null)
+        {
+            canStart = false;
+            hasWorkpieceIssue = true;
+        }
+        else if (_currentWorkpiece != null)
+        {
+            Workpiece wp = _currentWorkpiece.GetComponent<Workpiece>();
+            if (wp == null || wp.Data == null || !wp.CanBeCut)
+            {
+                canStart = false;
+                hasWorkpieceIssue = true;
+            }
+        }
+        
+        if (CurrentMode == CutterMode.Auto && _loadedPath == null)
+        {
+            canStart = false;
+            hasPathIssue = true;
+        }
+        
+        sb.AppendLine("\n" + new string('=', 40));
+        if (canStart)
+        {
+            sb.AppendLine("✓ READY TO START");
+        }
+        else
+        {
+            sb.AppendLine("❌ CANNOT START - Issues Found:");
+            if (CurrentState != CNCState.Idle)
+                sb.AppendLine($"  - Machine not in Idle state (current: {CurrentState})");
+            if (hasWorkpieceIssue)
+                sb.AppendLine("  - Workpiece issue (missing, no data, or can't be cut)");
+            if (hasPathIssue)
+                sb.AppendLine("  - Path required for Auto mode");
+        }
+        sb.AppendLine(new string('=', 40));
+        
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Context menu item to print diagnostics in editor.
+    /// </summary>
+    [ContextMenu("Print Startup Diagnostics")]
+    private void PrintDiagnostics()
+    {
+        Debug.Log(GetStartupDiagnostics());
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -585,17 +760,28 @@ public class CNCMachineExtended : MonoBehaviour
 
     private bool CanStartCutting()
     {
+        // Check workpiece requirement
         if (_requireWorkpiece && _currentWorkpiece == null)
         {
-            Debug.LogWarning("[CNCMachineExtended] Cannot start cutting - no workpiece loaded.");
+            string errorMsg = "Cannot start cutting - no workpiece loaded.";
+            Debug.LogWarning($"[CNCMachineExtended] {errorMsg}", this);
+            _debugLastError = errorMsg;
+            
+            // Fire event for UI
+            OnStartFailed?.Invoke(errorMsg);
             
             var safetyEvent = new SafetyEvent(
                 SafetyType.NoWorkpieceLoaded,
                 1,
-                "No workpiece loaded",
+                errorMsg,
                 transform.position
             );
             GameStateEvents.RaiseSafetyViolation(safetyEvent);
+            
+            if (_verboseLogging)
+            {
+                Debug.Log("[CNCMachineExtended] Printing full diagnostics:\n" + GetStartupDiagnostics());
+            }
             
             return false;
         }
@@ -604,13 +790,68 @@ public class CNCMachineExtended : MonoBehaviour
         if (_currentWorkpiece != null)
         {
             Workpiece wp = _currentWorkpiece.GetComponent<Workpiece>();
-            if (wp != null && !wp.CanBeCut)
+            
+            if (wp == null)
             {
-                Debug.LogWarning("[CNCMachineExtended] Cannot start cutting - workpiece cannot be cut further.");
+                string errorMsg = "Cannot start cutting - workpiece missing Workpiece component.";
+                Debug.LogWarning($"[CNCMachineExtended] {errorMsg}", this);
+                Debug.LogWarning($"[CNCMachineExtended] The workpiece GameObject '{_currentWorkpiece.name}' needs a Workpiece component. " +
+                                "This is usually added automatically by ObjectSpawner.", this);
+                _debugLastError = errorMsg;
+                OnStartFailed?.Invoke(errorMsg);
+                
+                if (_verboseLogging)
+                {
+                    Debug.Log("[CNCMachineExtended] Printing full diagnostics:\n" + GetStartupDiagnostics());
+                }
+                
+                return false;
+            }
+            
+            if (wp.Data == null)
+            {
+                string errorMsg = "Cannot start cutting - workpiece has no WorkpieceData assigned.";
+                Debug.LogWarning($"[CNCMachineExtended] {errorMsg}", this);
+                Debug.LogWarning($"[CNCMachineExtended] The Workpiece component on '{_currentWorkpiece.name}' needs its Data field assigned " +
+                                "in the Inspector or via Initialize().", this);
+                _debugLastError = errorMsg;
+                OnStartFailed?.Invoke(errorMsg);
+                
+                if (_verboseLogging)
+                {
+                    Debug.Log("[CNCMachineExtended] Printing full diagnostics:\n" + GetStartupDiagnostics());
+                }
+                
+                return false;
+            }
+            
+            if (!wp.CanBeCut)
+            {
+                string errorMsg = $"Cannot start cutting - workpiece cannot be cut further. " +
+                                 $"(Cuts: {wp.CutCount}/{wp.Data.maxCuts}, Thickness: {wp.CurrentThickness:F3}m/{wp.Data.minimumThickness:F3}m)";
+                Debug.LogWarning($"[CNCMachineExtended] {errorMsg}", this);
+                
+                if (!wp.Data.isCuttable)
+                    Debug.LogWarning($"[CNCMachineExtended] The WorkpieceData '{wp.Data.name}' has isCuttable set to false.", this);
+                if (wp.CutCount >= wp.Data.maxCuts)
+                    Debug.LogWarning($"[CNCMachineExtended] The workpiece has reached its maximum cut count.", this);
+                if (wp.CurrentThickness <= wp.Data.minimumThickness)
+                    Debug.LogWarning($"[CNCMachineExtended] The workpiece has reached its minimum thickness.", this);
+                
+                _debugLastError = errorMsg;
+                OnStartFailed?.Invoke(errorMsg);
+                
+                if (_verboseLogging)
+                {
+                    Debug.Log("[CNCMachineExtended] Printing full diagnostics:\n" + GetStartupDiagnostics());
+                }
+                
                 return false;
             }
         }
 
+        // Clear error if we pass all checks
+        _debugLastError = "";
         return true;
     }
 

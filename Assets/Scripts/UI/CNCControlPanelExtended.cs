@@ -141,6 +141,14 @@ public class CNCControlPanelExtended : MonoBehaviour
     [SerializeField] private AudioSource _audioSource;
 
     // ══════════════════════════════════════════════════════════════════════════
+    // INSPECTOR - Debug
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Header("Debug")]
+    [Tooltip("Log button clicks and state changes to console.")]
+    [SerializeField] private bool _verboseLogging = false;
+
+    // ══════════════════════════════════════════════════════════════════════════
     // PRIVATE STATE
     // ══════════════════════════════════════════════════════════════════════════
 
@@ -389,16 +397,40 @@ public class CNCControlPanelExtended : MonoBehaviour
     {
         PlayButtonSound();
 
+        if (_verboseLogging)
+            Debug.Log("[CNCControlPanelExtended] Start button clicked.", this);
+
         // Check with TaskManager if machine is allowed
         if (TaskManager.Instance != null && !TaskManager.Instance.TryUseMachine(MachineType.CNCRouter))
         {
+            Debug.LogWarning("[CNCControlPanelExtended] Machine locked by TaskManager. Complete previous task first.", this);
             // Machine is locked, TryUseMachine already plays error feedback
             return;
         }
         
-        if (_cncMachine != null)
+        if (_cncMachine == null)
         {
-            _cncMachine.StartCut();
+            Debug.LogError("[CNCControlPanelExtended] Cannot start - CNC Machine reference is null!", this);
+            return;
+        }
+        
+        bool success = _cncMachine.StartCut();
+        
+        if (!success)
+        {
+            Debug.LogWarning("[CNCControlPanelExtended] StartCut() returned false. Check CNCMachineExtended logs for details.", this);
+            
+            // Print diagnostics if available
+            if (_verboseLogging)
+            {
+                Debug.Log("[CNCControlPanelExtended] Requesting diagnostics from machine...");
+                Debug.Log(_cncMachine.GetStartupDiagnostics());
+            }
+        }
+        else
+        {
+            if (_verboseLogging)
+                Debug.Log("[CNCControlPanelExtended] CNC machine started successfully.", this);
         }
     }
 

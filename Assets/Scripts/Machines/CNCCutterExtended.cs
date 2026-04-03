@@ -24,8 +24,11 @@ public class CNCCutterExtended : MonoBehaviour
     // ══════════════════════════════════════════════════════════════════════════
 
     [Header("References")]
-    [Tooltip("Joystick that drives this cutter in manual mode.")]
+    [Tooltip("Joystick that drives this cutter in manual mode (legacy 2D control).")]
     [SerializeField] private JoystickController _joystick;
+
+    [Tooltip("Multi-axis controller for 3-stage manual control (X/Z/Y axes).")]
+    [SerializeField] private CNCMultiAxisController _multiAxisController;
 
     [Tooltip("ScriptableObject that defines work-area bounds.")]
     [SerializeField] private WorkAreaBounds _workAreaBounds;
@@ -132,6 +135,9 @@ public class CNCCutterExtended : MonoBehaviour
     // ══════════════════════════════════════════════════════════════════════════
 
     private Vector2 _joystickInput;
+    private float _xAxisInput;  // Multi-axis: Cutter left/right
+    private float _zAxisInput;  // Multi-axis: Holder forward/backward
+    private float _yAxisInput;  // Multi-axis: Spindle up/down
     private Vector3 _startLocalPosition;
     private List<Vector3> _recordedPath;
     private Vector3 _lastRecordedPosition;
@@ -155,12 +161,26 @@ public class CNCCutterExtended : MonoBehaviour
     {
         if (_joystick != null)
             _joystick.OnJoystickMoved += HandleJoystickMoved;
+
+        if (_multiAxisController != null)
+        {
+            _multiAxisController.OnXAxisInput += HandleXAxisInput;
+            _multiAxisController.OnZAxisInput += HandleZAxisInput;
+            _multiAxisController.OnYAxisInput += HandleYAxisInput;
+        }
     }
 
     private void OnDisable()
     {
         if (_joystick != null)
             _joystick.OnJoystickMoved -= HandleJoystickMoved;
+
+        if (_multiAxisController != null)
+        {
+            _multiAxisController.OnXAxisInput -= HandleXAxisInput;
+            _multiAxisController.OnZAxisInput -= HandleZAxisInput;
+            _multiAxisController.OnYAxisInput -= HandleYAxisInput;
+        }
     }
 
     private void Update()
@@ -433,6 +453,21 @@ public class CNCCutterExtended : MonoBehaviour
         _joystickInput = input;
     }
 
+    private void HandleXAxisInput(float value)
+    {
+        _xAxisInput = value;
+    }
+
+    private void HandleZAxisInput(float value)
+    {
+        _zAxisInput = value;
+    }
+
+    private void HandleYAxisInput(float value)
+    {
+        _yAxisInput = value;
+    }
+
     private void MoveCutterManual()
     {
         if (_workAreaBounds == null)
@@ -442,31 +477,90 @@ public class CNCCutterExtended : MonoBehaviour
             return;
         }
 
-        if (_joystickInput.sqrMagnitude < 0.001f)
-            return;
+        bool moved = false;
+        Vector3 newLocal = transform.localPosition;
 
-        // Joystick X → local X (lateral), Joystick Y → local Z (depth)
-        Vector3 delta = new Vector3(
-            _joystickInput.x * _manualSpeed * Time.deltaTime,
-            0f,
-            _joystickInput.y * _manualSpeed * Time.deltaTime
-        );
+        // Multi-axis controller takes priority if assigned
+        if (_multiAxisController != null)
+        {
+            // Stage 1: Move CUTTER in X-axis (left/right)
+            if (_xAxisInput != 0f)
+            {
+                newLocal.x += _xAxisInput * _manualSpeed * Time.deltaTime;
+                
+                // Clamp X to bounds
+                newLocal.x = Mathf.Clamp(newLocal.x, _workAreaBounds.minX, _workAreaBounds.maxX);
+                moved = true;
+                
+                if (_verboseLogging)
+                    Debug.Log($"[CNCCutterExtended] X-axis movement: {_xAxisInput}");
+            }
 
-        Vector3 newLocal = transform.localPosition + delta;
+            // Stage 2: Move SPINDLE HOLDER in Z-axis (forward/backward)
+            if (_zAxisInput != 0f && transform.parent != null)
+            {
+                Transform holder = transform.parent;
+                Vector3 holderPos = holder.localPosition;
+                holderPos.z += _zAxisInput * _manualSpeed * Time.deltaTime;
+                
+                // Clamp Z to bounds
+                holderPos.z = Mathf.Clamp(holderPos.z, _workAreaBounds.minZ, _workAreaBounds.maxZ);
+                holder.localPosition = holderPos;
+                moved = true;
+                
+                if (_verboseLogging)
+                    Debug.Log($"[CNCCutterExtended] Z-axis (holder) movement: {_zAxisInput}");
+            }
 
-        // Clamp to work-area bounds
-        Vector2 clampedXZ = _workAreaBounds.Clamp(new Vector2(newLocal.x, newLocal.z));
-        newLocal.x = clampedXZ.x;
-        newLocal.z = clampedXZ.y;
+            // Stage 3: Move SPINDLE in Y-axis (up/down)
+            if (_yAxisInput != 0f)
+            {
+                newLocal.y += _yAxisInput * _manualSpeed * Time.deltaTime;
+                
+                // Clamp Y to bounds (plunge depth)
+                newLocal.y = Mathf.Clamp(newLocal.y, _workAreaBounds.minY, _workAreaBounds.maxY);
+                moved = true;
+                
+                if (_verboseLogging)
+                    Debug.Log($"[CNCCutterExtended] Y-axis (spindle) movement: {_yAxisInput}");
+            }
 
-        // Keep current Y (plunge depth)
-        newLocal.y = transform.localPosition.y;
+            // Apply cutter position changes (X and Y)
+            if (_xAxisInput != 0f || _yAxisInput != 0f)
+            {
+                transform.localPosition = newLocal;
+            }
+        }
+        // Fallback to legacy joystick control if no multi-axis controller
+        else if (_joystick != null && _joystickInput.sqrMagnitude > 0.001f)
+        {
+            // Joystick X → local X (lateral), Joystick Y → local Z (depth)
+            Vector3 delta = new Vector3(
+                _joystickInput.x * _manualSpeed * Time.deltaTime,
+                0f,
+                _joystickInput.y * _manualSpeed * Time.deltaTime
+            );
 
-        transform.localPosition = newLocal;
-        OnCutterMoved?.Invoke(newLocal);
+            newLocal = transform.localPosition + delta;
 
-        // Record position
-        RecordPosition(newLocal);
+            // Clamp to work-area bounds
+            Vector2 clampedXZ = _workAreaBounds.Clamp(new Vector2(newLocal.x, newLocal.z));
+            newLocal.x = clampedXZ.x;
+            newLocal.z = clampedXZ.y;
+
+            // Keep current Y (plunge depth)
+            newLocal.y = transform.localPosition.y;
+
+            transform.localPosition = newLocal;
+            moved = true;
+        }
+
+        // Fire events and record if movement occurred
+        if (moved)
+        {
+            OnCutterMoved?.Invoke(newLocal);
+            RecordPosition(newLocal);
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════════════

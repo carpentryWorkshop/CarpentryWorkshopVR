@@ -85,6 +85,15 @@ public class CNCMachineExtended : MonoBehaviour
     [Tooltip("Last startup failure reason (read-only).")]
     [SerializeField] private string _debugLastError = "";
 
+    [Tooltip("Current machine state (read-only).")]
+    [SerializeField] private string _debugCurrentState = "Idle";
+
+    [Tooltip("Current cutting mode (read-only).")]
+    [SerializeField] private string _debugCurrentMode = "Manual";
+
+    [Tooltip("Is cutter component enabled (read-only).")]
+    [SerializeField] private bool _debugCutterEnabled = false;
+
     // ══════════════════════════════════════════════════════════════════════════
     // EVENTS
     // ══════════════════════════════════════════════════════════════════════════
@@ -186,11 +195,11 @@ public class CNCMachineExtended : MonoBehaviour
 
     private void Update()
     {
-        // Update debug info in inspector
-        if (_verboseLogging)
-        {
-            _debugCurrentWorkpiece = _currentWorkpiece;
-        }
+        // Update debug info in inspector (always update for visibility)
+        _debugCurrentWorkpiece = _currentWorkpiece;
+        _debugCurrentState = CurrentState.ToString();
+        _debugCurrentMode = CurrentMode.ToString();
+        _debugCutterEnabled = _cutter != null && _cutter.IsEnabled;
 
         switch (CurrentState)
         {

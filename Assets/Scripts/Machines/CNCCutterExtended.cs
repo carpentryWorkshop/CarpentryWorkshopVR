@@ -159,14 +159,21 @@ public class CNCCutterExtended : MonoBehaviour
 
     private void OnEnable()
     {
+        Debug.Log("[CNCCutterExtended] OnEnable() called");
+        
         if (_joystick != null)
             _joystick.OnJoystickMoved += HandleJoystickMoved;
 
         if (_multiAxisController != null)
         {
+            Debug.Log("[CNCCutterExtended] Subscribing to multi-axis controller events");
             _multiAxisController.OnXAxisInput += HandleXAxisInput;
             _multiAxisController.OnZAxisInput += HandleZAxisInput;
             _multiAxisController.OnYAxisInput += HandleYAxisInput;
+        }
+        else
+        {
+            Debug.LogWarning("[CNCCutterExtended] _multiAxisController is NULL - events won't be received!");
         }
     }
 
@@ -222,6 +229,9 @@ public class CNCCutterExtended : MonoBehaviour
     /// <param name="enabled">True to enable cutting.</param>
     public void SetEnabled(bool enabled)
     {
+        // Always log this critical state change
+        Debug.Log($"[CNCCutterExtended] SetEnabled({enabled}) called");
+        
         IsEnabled = enabled;
 
         if (!enabled)
@@ -456,24 +466,32 @@ public class CNCCutterExtended : MonoBehaviour
     private void HandleXAxisInput(float value)
     {
         _xAxisInput = value;
+        if (value != 0f) Debug.Log($"[CNCCutterExtended] HandleXAxisInput received: {value}");
     }
 
     private void HandleZAxisInput(float value)
     {
         _zAxisInput = value;
+        if (value != 0f) Debug.Log($"[CNCCutterExtended] HandleZAxisInput received: {value}");
     }
 
     private void HandleYAxisInput(float value)
     {
         _yAxisInput = value;
+        if (value != 0f) Debug.Log($"[CNCCutterExtended] HandleYAxisInput received: {value}");
     }
 
     private void MoveCutterManual()
     {
+        // Always log entry with key state info
+        if (_xAxisInput != 0f || _zAxisInput != 0f || _yAxisInput != 0f)
+        {
+            Debug.Log($"[CNCCutterExtended] MoveCutterManual() - IsEnabled:{IsEnabled}, Mode:{Mode}, X:{_xAxisInput}, Z:{_zAxisInput}, Y:{_yAxisInput}");
+        }
+        
         if (_workAreaBounds == null)
         {
-            if (_verboseLogging)
-                Debug.LogWarning("[CNCCutterExtended] No WorkAreaBounds assigned - cannot move.");
+            Debug.LogWarning("[CNCCutterExtended] No WorkAreaBounds assigned - cannot move.");
             return;
         }
 
@@ -707,6 +725,30 @@ public class CNCCutterExtended : MonoBehaviour
                 Gizmos.DrawLine(from, to);
             }
         }
+    }
+
+    [ContextMenu("Print Multi-Axis Diagnostics")]
+    private void PrintMultiAxisDiagnostics()
+    {
+        Debug.Log("=== CNCCutterExtended Multi-Axis Diagnostics ===");
+        Debug.Log($"IsEnabled: {IsEnabled}");
+        Debug.Log($"Mode: {Mode}");
+        Debug.Log($"Multi-Axis Controller: {(_multiAxisController != null ? _multiAxisController.name : "NULL")}");
+        Debug.Log($"WorkAreaBounds: {(_workAreaBounds != null ? _workAreaBounds.name : "NULL")}");
+        Debug.Log($"Transform Parent (Holder): {(transform.parent != null ? transform.parent.name : "NULL")}");
+        Debug.Log($"Current X Input: {_xAxisInput}");
+        Debug.Log($"Current Z Input: {_zAxisInput}");
+        Debug.Log($"Current Y Input: {_yAxisInput}");
+        Debug.Log($"Start Local Position: {_startLocalPosition}");
+        Debug.Log($"Current Local Position: {transform.localPosition}");
+        
+        if (_multiAxisController != null)
+        {
+            Debug.Log($"Multi-Axis Controller IsEnabled: {_multiAxisController.IsEnabled}");
+            Debug.Log($"Multi-Axis Controller CurrentMode: {_multiAxisController.CurrentMode}");
+        }
+        
+        Debug.Log("================================================");
     }
 #endif
 }

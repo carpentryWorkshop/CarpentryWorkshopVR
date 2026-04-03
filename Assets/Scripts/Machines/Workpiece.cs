@@ -288,8 +288,8 @@ public class Workpiece : MonoBehaviour
             return;
 
         _rigidbody.mass = _data.Mass;
-        _rigidbody.drag = _data.drag;
-        _rigidbody.angularDrag = _data.angularDrag;
+        _rigidbody.linearDamping = _data.drag;
+        _rigidbody.angularDamping = _data.angularDrag;
         _rigidbody.useGravity = true;
         _rigidbody.isKinematic = false;
 

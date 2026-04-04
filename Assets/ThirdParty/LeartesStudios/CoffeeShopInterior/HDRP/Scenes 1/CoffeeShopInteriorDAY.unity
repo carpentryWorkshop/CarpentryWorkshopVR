@@ -910,7 +910,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
@@ -927,7 +927,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b382dff5d93d8264691993ef6d7193e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Workpiece
-  _data: {fileID: 0}
+  _data: {fileID: 11400000, guid: 05ca621c6bac38541a4b9d3f8578ab72, type: 2}
   _cutCount: 0
   _isCut: 0
   _isBeingProcessed: 0
@@ -4020,7 +4020,7 @@ Transform:
   m_GameObject: {fileID: 385185088}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -1.8037103, y: -0.65159374, z: -25.678122}
+  m_LocalPosition: {x: 2, y: -0.65159374, z: -25.7}
   m_LocalScale: {x: 154.9005, y: 60.20162, z: 33.17645}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4958,6 +4958,11 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!4 &451028436 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -7776138857236494674, guid: 185db91159f87b74db49bfbc094676fb, type: 3}
+  m_PrefabInstance: {fileID: 1506066078}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &453131375
 GameObject:
   m_ObjectHideFlags: 0
@@ -12231,7 +12236,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -330, y: 0}
+  m_AnchoredPosition: {x: -331.6, y: 0}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &937921859
@@ -17710,6 +17715,7 @@ MonoBehaviour:
   _buttonClickSound: {fileID: 0}
   _emergencySound: {fileID: 0}
   _audioSource: {fileID: 0}
+  _verboseLogging: 0
 --- !u!114 &1491632355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17974,6 +17980,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8607778982859864334, guid: 185db91159f87b74db49bfbc094676fb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 77217498}
+    - targetCorrespondingSourceObject: {fileID: -7776138857236494674, guid: 185db91159f87b74db49bfbc094676fb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2131889279}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 185db91159f87b74db49bfbc094676fb, type: 3}
       insertIndex: -1
@@ -18028,6 +18037,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CNCCutterExtended
   _joystick: {fileID: 25409708}
+  _multiAxisController: {fileID: 2131889280}
   _workAreaBounds: {fileID: 11400000, guid: 39a3656158ff1d94896983ce7adc5aa6, type: 2}
   _manualSpeed: 0.15
   _autoSpeedMultiplier: 1
@@ -18038,7 +18048,7 @@ MonoBehaviour:
   _cuttingLight: {fileID: 0}
   _showGizmos: 1
   _showRecordedPath: 1
-  _verboseLogging: 0
+  _verboseLogging: 1
 --- !u!1 &1506066082 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 185db91159f87b74db49bfbc094676fb, type: 3}
@@ -18081,6 +18091,11 @@ MonoBehaviour:
   _requireWorkpiece: 1
   _maxSafeSpeedMultiplier: 1.5
   _verboseLogging: 1
+  _debugCurrentWorkpiece: {fileID: 0}
+  _debugLastError: 
+  _debugCurrentState: Idle
+  _debugCurrentMode: Manual
+  _debugCutterEnabled: 0
 --- !u!4 &1506066088 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 185db91159f87b74db49bfbc094676fb, type: 3}
@@ -25044,6 +25059,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d40c2412e0934d549872f721027c462c, type: 3}
+--- !u!1 &2131889278
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2131889279}
+  - component: {fileID: 2131889280}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2131889279
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2131889278}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 451028436}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2131889280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2131889278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7196441898aa314fb9f7a13cc494102, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CNCMultiAxisController
+  _leftKey: 106
+  _rightKey: 108
+  _forwardKey: 105
+  _backKey: 107
+  _upKey: 119
+  _downKey: 120
+  _autoModeSwitching: 1
+  _startingMode: 0
+  _verboseLogging: 0
 --- !u!1001 &773182784383830697
 PrefabInstance:
   m_ObjectHideFlags: 0

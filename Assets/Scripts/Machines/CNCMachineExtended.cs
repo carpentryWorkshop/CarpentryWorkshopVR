@@ -769,6 +769,16 @@ public class CNCMachineExtended : MonoBehaviour
 
     private bool CanStartCutting()
     {
+        // Skip workpiece validation entirely for Manual mode
+        // Manual mode is for testing/debugging and shouldn't require workpiece
+        if (CurrentMode == CutterMode.Manual)
+        {
+            // Clear error and allow manual operation without workpiece
+            _debugLastError = "";
+            return true;
+        }
+
+        // Auto mode requires workpiece validation below...
         // Check workpiece requirement
         if (_requireWorkpiece && _currentWorkpiece == null)
         {

@@ -146,6 +146,28 @@ public class CNCMultiAxisController : MonoBehaviour
             if (_verboseLogging && yInput != 0f)
                 Debug.Log($"[CNCMultiAxisController] Y-axis input: {yInput}");
         }
+
+        // F5 = Debug start CNC (bypasses UI button)
+        if (Input.GetKeyDown(KeyCode.F5))
+        {
+            Debug.Log("[CNCMultiAxisController] F5 pressed - attempting to start CNC...");
+            var machine = GetComponentInParent<CNCMachineExtended>();
+            if (machine != null)
+            {
+                bool success = machine.StartCut();
+                Debug.Log($"[CNCMultiAxisController] StartCut() result: {success}");
+                
+                if (!success)
+                {
+                    Debug.Log("[CNCMultiAxisController] StartCut() failed - here's why:");
+                    Debug.Log(machine.GetStartupDiagnostics());
+                }
+            }
+            else
+            {
+                Debug.LogError("[CNCMultiAxisController] No CNCMachineExtended found in parent!");
+            }
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════════════

@@ -230,6 +230,9 @@ public class CNCControlPanelExtended : MonoBehaviour
 
     private void Initialize()
     {
+        // STARTUP DIAGNOSTIC
+        Debug.Log($"[CNCControlPanel] STARTUP: _startButton={(_startButton != null ? "OK" : "NULL")}, _cncMachine={(_cncMachine != null ? "OK" : "NULL")}");
+        
         if (_isInitialized || _cncMachine == null)
             return;
 

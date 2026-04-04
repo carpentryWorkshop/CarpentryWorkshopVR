@@ -159,14 +159,11 @@ public class CNCCutterExtended : MonoBehaviour
 
     private void OnEnable()
     {
-        Debug.Log("[CNCCutterExtended] OnEnable() called");
-        
         if (_joystick != null)
             _joystick.OnJoystickMoved += HandleJoystickMoved;
 
         if (_multiAxisController != null)
         {
-            Debug.Log("[CNCCutterExtended] Subscribing to multi-axis controller events");
             _multiAxisController.OnXAxisInput += HandleXAxisInput;
             _multiAxisController.OnZAxisInput += HandleZAxisInput;
             _multiAxisController.OnYAxisInput += HandleYAxisInput;
@@ -229,9 +226,9 @@ public class CNCCutterExtended : MonoBehaviour
     /// <param name="enabled">True to enable cutting.</param>
     public void SetEnabled(bool enabled)
     {
-        // Always log this critical state change
-        Debug.Log($"[CNCCutterExtended] SetEnabled({enabled}) called");
-        
+        if (_verboseLogging)
+            Debug.Log($"[CNCCutterExtended] SetEnabled({enabled}) called");
+
         IsEnabled = enabled;
 
         if (!enabled)
@@ -466,27 +463,25 @@ public class CNCCutterExtended : MonoBehaviour
     private void HandleXAxisInput(float value)
     {
         _xAxisInput = value;
-        if (value != 0f) Debug.Log($"[CNCCutterExtended] HandleXAxisInput received: {value}");
     }
 
     private void HandleZAxisInput(float value)
     {
         _zAxisInput = value;
-        if (value != 0f) Debug.Log($"[CNCCutterExtended] HandleZAxisInput received: {value}");
     }
 
     private void HandleYAxisInput(float value)
     {
         _yAxisInput = value;
-        if (value != 0f) Debug.Log($"[CNCCutterExtended] HandleYAxisInput received: {value}");
     }
 
     private void MoveCutterManual()
     {
-        // Always log entry with key state info
-        if (_xAxisInput != 0f || _zAxisInput != 0f || _yAxisInput != 0f)
+        if (!IsEnabled)
         {
-            Debug.Log($"[CNCCutterExtended] MoveCutterManual() - IsEnabled:{IsEnabled}, Mode:{Mode}, X:{_xAxisInput}, Z:{_zAxisInput}, Y:{_yAxisInput}");
+            if (_verboseLogging)
+                Debug.Log($"[CNCCutterExtended] MoveCutterManual() - IsEnabled:{IsEnabled}, Mode:{Mode}, X:{_xAxisInput}, Z:{_zAxisInput}, Y:{_yAxisInput}");
+            return;
         }
         
         if (_workAreaBounds == null)

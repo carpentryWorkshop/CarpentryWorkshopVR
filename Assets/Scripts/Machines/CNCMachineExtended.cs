@@ -76,7 +76,7 @@ public class CNCMachineExtended : MonoBehaviour
 
     [Header("Debug")]
     [Tooltip("Log state transitions to console.")]
-    [SerializeField] private bool _verboseLogging = true;
+    [SerializeField] private bool _verboseLogging = false;
 
     [Header("Debug Info (Read-Only)")]
     [Tooltip("Current workpiece GameObject (read-only).")]

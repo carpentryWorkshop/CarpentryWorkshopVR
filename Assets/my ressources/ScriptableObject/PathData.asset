@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15dccbcfc4a70694da58a3179ff6c3e3, type: 3}
+  m_Name: PathData
+  m_EditorClassIdentifier: Assembly-CSharp::PathData
+  pathName: Cutting Path
+  pathId: path_default
+  pathType: 0
+  description: A cutting path for the CNC machine.
+  waypoints: []
+  isClosedLoop: 0
+  feedRate: 0.1
+  plungeDepth: 0.02
+  passes: 1
+  plungeRate: 0.05
+  retractHeight: 0.03
+  toolDiameter: 0.006
+  toolOffset: 0
+  previewColor: {r: 0, g: 1, b: 1, a: 1}
+  previewLineWidth: 0.003
+  shapeWidth: 0.1
+  shapeHeight: 0.1
+  shapeCenter: {x: 0, y: 0, z: 0}
+  circleSegments: 32

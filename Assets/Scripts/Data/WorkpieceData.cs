@@ -80,7 +80,7 @@ public class WorkpieceData : ScriptableObject
 
     [Header("Physics")]
     [Tooltip("Physics material for collision behavior.")]
-    public PhysicMaterial physicsMaterial;
+    public PhysicsMaterial physicsMaterial;
 
     [Tooltip("Drag coefficient when moving.")]
     [Range(0f, 5f)]

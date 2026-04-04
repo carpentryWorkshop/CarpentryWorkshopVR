@@ -18088,7 +18088,7 @@ MonoBehaviour:
   _autoResetDelay: 0.5
   _loadedPath: {fileID: 0}
   _availablePaths: []
-  _requireWorkpiece: 1
+  _requireWorkpiece: 0
   _maxSafeSpeedMultiplier: 1.5
   _verboseLogging: 1
   _debugCurrentWorkpiece: {fileID: 0}

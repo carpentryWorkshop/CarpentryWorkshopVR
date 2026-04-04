@@ -1,0 +1,58 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\iyed\\Desktop\\carpentry-workshop\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{2C34D2F2-8A3C-B345-50A5-38B913BAF0E1}|Assembly-CSharp.csproj|c:\\users\\iyed\\desktop\\carpentry-workshop\\assets\\scripts\\gamestate\\gamestateevents.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2C34D2F2-8A3C-B345-50A5-38B913BAF0E1}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\gamestate\\gamestateevents.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2C34D2F2-8A3C-B345-50A5-38B913BAF0E1}|Assembly-CSharp.csproj|c:\\users\\iyed\\desktop\\carpentry-workshop\\assets\\scripts\\machines\\cncmultiaxiscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2C34D2F2-8A3C-B345-50A5-38B913BAF0E1}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\machines\\cncmultiaxiscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GameStateEvents.cs",
+              "DocumentMoniker": "C:\\Users\\iyed\\Desktop\\carpentry-workshop\\Assets\\Scripts\\GameState\\GameStateEvents.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\GameState\\GameStateEvents.cs",
+              "ToolTip": "C:\\Users\\iyed\\Desktop\\carpentry-workshop\\Assets\\Scripts\\GameState\\GameStateEvents.cs",
+              "RelativeToolTip": "Assets\\Scripts\\GameState\\GameStateEvents.cs",
+              "ViewState": "AgIAALgAAAAAAAAAAABBwLkAAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-04T01:11:14.184Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CNCMultiAxisController.cs",
+              "DocumentMoniker": "C:\\Users\\iyed\\Desktop\\carpentry-workshop\\Assets\\Scripts\\Machines\\CNCMultiAxisController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Machines\\CNCMultiAxisController.cs",
+              "ToolTip": "C:\\Users\\iyed\\Desktop\\carpentry-workshop\\Assets\\Scripts\\Machines\\CNCMultiAxisController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Machines\\CNCMultiAxisController.cs",
+              "ViewState": "AgIAAH4AAAAAAAAAAAAQwJgAAABaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-04T01:07:34.233Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -65,7 +65,7 @@ public class CNCMachineExtended : MonoBehaviour
 
     [Header("Safety")]
     [Tooltip("Require a workpiece to be loaded before cutting can start.")]
-    [SerializeField] private bool _requireWorkpiece = true;
+    [SerializeField] private bool _requireWorkpiece = false;
 
     [Tooltip("Maximum allowed speed multiplier before triggering safety warning.")]
     [SerializeField] [Range(1f, 3f)] private float _maxSafeSpeedMultiplier = 1.5f;

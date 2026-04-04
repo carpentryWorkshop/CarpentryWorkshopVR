@@ -256,7 +256,14 @@ public class CNCControlPanelExtended : MonoBehaviour
 
         // Operation buttons
         if (_startButton != null)
+        {
             _startButton.onClick.AddListener(OnStartClicked);
+            Debug.Log("[CNCControlPanelExtended] Start button listener connected successfully.");
+        }
+        else
+        {
+            Debug.LogWarning("[CNCControlPanelExtended] _startButton is NULL - cannot connect OnStartClicked listener!");
+        }
 
         if (_stopButton != null)
             _stopButton.onClick.AddListener(OnStopClicked);
@@ -395,10 +402,16 @@ public class CNCControlPanelExtended : MonoBehaviour
 
     private void OnStartClicked()
     {
+        // ALWAYS log button click for debugging (not conditional on _verboseLogging)
+        Debug.Log("[CNCControlPanelExtended] OnStartClicked() - Button was clicked!");
+        
         PlayButtonSound();
 
         if (_verboseLogging)
             Debug.Log("[CNCControlPanelExtended] Start button clicked.", this);
+
+        // Check CNC Machine reference first
+        Debug.Log($"[CNCControlPanelExtended] _cncMachine reference is {(_cncMachine != null ? "assigned" : "NULL")}");
 
         // Check with TaskManager if machine is allowed
         if (TaskManager.Instance != null && !TaskManager.Instance.TryUseMachine(MachineType.CNCRouter))
@@ -414,7 +427,9 @@ public class CNCControlPanelExtended : MonoBehaviour
             return;
         }
         
+        Debug.Log("[CNCControlPanelExtended] Calling _cncMachine.StartCut()...");
         bool success = _cncMachine.StartCut();
+        Debug.Log($"[CNCControlPanelExtended] _cncMachine.StartCut() returned: {success}");
         
         if (!success)
         {
@@ -429,8 +444,7 @@ public class CNCControlPanelExtended : MonoBehaviour
         }
         else
         {
-            if (_verboseLogging)
-                Debug.Log("[CNCControlPanelExtended] CNC machine started successfully.", this);
+            Debug.Log("[CNCControlPanelExtended] CNC machine started successfully.");
         }
     }
 
@@ -763,6 +777,31 @@ public class CNCControlPanelExtended : MonoBehaviour
     private void TestRefresh()
     {
         RefreshUI();
+    }
+
+    [ContextMenu("Print Control Panel Diagnostics")]
+    private void PrintControlPanelDiagnostics()
+    {
+        Debug.Log("=== CNCControlPanelExtended Diagnostics ===");
+        Debug.Log($"CNC Machine Reference: {(_cncMachine != null ? _cncMachine.name : "NULL")}");
+        Debug.Log($"Start Button Reference: {(_startButton != null ? _startButton.name : "NULL")}");
+        Debug.Log($"Verbose Logging: {_verboseLogging}");
+        
+        if (_startButton != null)
+        {
+            Debug.Log($"Start Button GameObject Active: {_startButton.gameObject.activeInHierarchy}");
+            Debug.Log($"Start Button Component Enabled: {_startButton.enabled}");
+            Debug.Log($"Start Button Interactable: {_startButton.interactable}");
+        }
+        
+        if (_cncMachine != null)
+        {
+            Debug.Log($"CNC Machine Current State: {_cncMachine.CurrentState}");
+            Debug.Log($"CNC Machine Current Mode: {_cncMachine.CurrentMode}");
+            Debug.Log($"CNC Machine Has Workpiece: {_cncMachine.HasWorkpiece}");
+        }
+        
+        Debug.Log("================================================");
     }
 
     private void OnValidate()
